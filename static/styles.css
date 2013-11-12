@@ -1,0 +1,276 @@
+/* reset */
+* {
+    margin: 0;
+    padding: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+}
+
+th, td {
+    vertical-align: top;
+}
+
+ol, ul, menu {
+    list-style: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* normalize */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section,
+summary {
+    margin: 0;
+    display: block;
+}
+
+[hidden] {
+    display: none;
+}
+
+html {
+    font-family: sans-serif;
+    font-weight: normal;
+}
+
+body {
+    word-wrap: break-word;
+    -webkit-text-size-adjust: none;
+    -ms-text-size-adjust: none;
+    text-size-adjust: none;
+}
+
+h1, h2, h3, h4, h5, h6, strong, b {
+    font-weight: normal;
+}
+
+button,
+textarea,
+select,
+input:focus,
+input:active,
+a:active,
+a:focus,
+a:hover {
+    outline: 0;
+}
+
+img {
+    border: 0;
+    -ms-interpolation-mode: bicubic;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: sans-serif;
+    font-size: 100%;
+    margin: 0;
+    vertical-align: baseline;
+}
+
+html,
+body,
+button,
+input {
+    line-height: normal;
+    padding: 0;
+    border: 0;
+}
+
+textarea,
+button {
+    -webkit-appearance: none;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box;
+    padding: 0;
+}
+
+input[type="search"] {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration,
+input[type="file"]::-webkit-file-upload-button {
+    padding: 0;
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+textarea {
+    overflow: auto;
+    vertical-align: top;
+}
+
+input::-ms-clear {
+    display: none;
+}
+
+/* layout */
+
+html, body {
+    height: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+body {
+    background: #f5f5f5;
+    color: #444;
+    font: lighter 14px/normal "Helvetica", "Arial", sans-serif;
+}
+
+/*
+    LAYOUT
+*/
+
+.main-form {
+    display: inline-block;
+    margin: 30px 30px 25px;
+    position: relative;
+    width: 100%;
+}
+
+.control-options {
+    clear: both;
+    position: absolute;
+    left: 240px;
+    top: 0;
+}
+
+.control-select {
+    clear: left;
+    float: left;
+    padding-bottom: 10px;
+    padding-right: 30px;
+}
+
+.control-select .label {
+    display: inline-block;
+    width: 110px;
+}
+
+.control-select .select {
+    width: 100px;
+}
+
+.control-checkbox {
+    float: left;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    width: 140px;
+}
+
+.control-checkbox:nth-child(2n+1) {
+    clear: left;
+}
+
+.control-checkbox .checkbox,
+.control-checkbox .label-text {
+    vertical-align: middle;
+}
+
+.results-table {
+    clear: both;
+    margin-bottom: 30px;
+    margin-left: 30px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.results-table .cell {
+    color: #fff;
+    min-width: 60px;
+    padding: 10px;
+}
+
+.results-table .jquery-cell,
+.results-table .zepto-cell {
+    font-size: 18px;
+    text-align: center;
+}
+
+.results-table .method-cell {
+    font-weight: bold;
+}
+
+.results-table .method-row[data-is-common="0"] .cell {
+    background: #9d1919;
+}
+
+.results-table .method-row[data-is-common="1"] .cell {
+    background: #259d19;
+}
+
+.results-table .method-row[data-is-static="0"] .method-cell {
+    background: #EE811D;
+}
+
+.results-table .method-row[data-is-static="1"] .method-cell {
+    background: #6abbee;
+}
+
+.results-table .th-jquery,
+.results-table .th-zepto {
+    background: #000;
+}
+
+.results-table .th-method {
+    color: #000;
+}
+
+.results-table .th-zepto {
+    border-radius: 0 10px 0 0;
+}
+
+.results-table .th-jquery {
+    border-radius: 10px 0 0;
+}
+
+.tbody .method-row.visible .method-cell {
+    border-radius: 10px 0 0;
+    width: 130px;
+}
+
+.tbody .method-row.visible ~ .method-row.visible .method-cell {
+    border-radius: 0;
+}
+
+.tbody .method-row.visible:last-child .method-cell {
+    border-radius: 0 0 0 10px !important;
+}
+
+.tbody .method-row.visible:last-child .cell:last-child {
+    border-radius: 0 0 10px 0 !important;
+}
+
+.hidden {
+    display: none;
+}

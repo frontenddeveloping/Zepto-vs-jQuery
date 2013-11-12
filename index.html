@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Zepto vs jQuery - compare methods</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+    <form action="" class="main-form">
+        <div class="form-control control-jquery control-select">
+            <label for="jquery-version" class="label">jQuery version:</label>
+            <!-- load version from github API -->
+            <select id="jquery-version" class="select">
+                <option value="1.10.1">1.10.1</option>
+                <option value="2.0.3">2.0.3</option>
+            </select>
+        </div>
+        <div class="form-control control-zepto control-select">
+            <label for="zepto-version" class="label">Zepto version:</label>
+            <!-- load version from site -->
+            <select id="zepto-version" class="select">
+                <option value="1.0.1">1.0.1</option>
+            </select>
+        </div>
+        <div class="control-options">
+            <div class="form-control control-static-methods control-checkbox">
+                <label for="static-methods" class="label">
+                    <input type="checkbox" id="static-methods" name="static_methods" class="checkbox" />
+                    <span class="label-text">Static methods</span>
+                </label>
+            </div>
+            <div class="form-control control-essence-methods control-checkbox">
+                <label for="essence-methods" class="label">
+                    <input type="checkbox" id="essence-methods" name="essence_methods" class="checkbox" />
+                    <span class="label-text">Shared methods</span>
+                </label>
+            </div>
+            <div class="form-control control-diff-methods control-checkbox">
+                <label for="diff-methods" class="label">
+                    <input type="checkbox" id="diff-methods" name="diff_methods" class="checkbox" />
+                    <span class="label-text">Diff methods</span>
+                </label>
+            </div>
+            <div class="form-control control-common-methods control-checkbox">
+                <label for="common-methods" class="label">
+                    <input type="checkbox" id="common-methods" name="common_methods" class="checkbox" />
+                    <span class="label-text">Common methods</span>
+                </label>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="help">
+    <!--
+        TODO description
+        own - hasOwnProperty
+    -->
+</div>
+<div class="log">
+    <table class="results-table static-table">
+        <thead>
+            <th class="cell th-cell th-method">Static methods</th>
+            <th class="cell th-cell th-jquery">jQuery</th>
+            <th class="cell th-cell th-zepto">Zepto</th>
+        </thead>
+        <tbody id="static-tbody" class="tbody">
+            <!-- insert compare result here-->
+        </tbody>
+    </table>
+    <table class="results-table shared-table">
+        <thead>
+            <th class="cell th-cell th-method">Shared methods</th>
+            <th class="cell th-cell th-jquery">jQuery</th>
+            <th class="cell th-cell th-zepto">Zepto</th>
+        </thead>
+        <tbody id="shared-tbody" class="tbody">
+            <!-- insert compare result here-->
+        </tbody>
+    </table>
+</div>
+<script src="libs/jquery-1.10.1.js"></script>
+<script src="static/main.js"></script>
+</body>
+</html>
