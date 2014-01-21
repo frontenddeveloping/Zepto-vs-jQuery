@@ -30,7 +30,7 @@
         $STATIC_LIB_PROPS_TABLE,
         $SHARED_LIB_PROPS_TABLE,
         $SCRIPTS_SANDBOX,
-        $PROGRESS_BAR,
+        $COMPARE_CONTROL,
         $ZEPTO_VERSION_CONTROL,
         $JQUERY_VERSION_CONTROL,
         $STATIC_METHODS_CONTROL,
@@ -376,7 +376,7 @@
         $ESSSENCE_METHODS_CONTROLS = $('#essence-methods');
         $DIFF_METHODS_CONTROL = $('#diff-methods');
         $COMMON_METHOD_CONTROL = $('#common-methods');
-        $PROGRESS_BAR = $('#progress-bar');
+        $COMPARE_CONTROL = $('#compare-control');
 
         hideRenderedResults();
 
@@ -456,6 +456,7 @@
             removeScriptFromSandbox('Zepto');
             removeScriptFromSandbox('$');
 
+            $COMPARE_CONTROL.addClass('loading');
             $
                 .when(jqueryDeffered, zeptoDeffered)
                 .done(function () {
@@ -467,11 +468,9 @@
                 })
                 .always(function () {
                     enableControls();
-                    //notify user that page changed
-                    $PROGRESS_BAR.addClass('loaded');
                     setTimeout(function () {
-                        $PROGRESS_BAR.removeClass('loaded');
-                    }, 600)
+                        $COMPARE_CONTROL.removeClass('loading');
+                    }, 500)
                 });
 
         });

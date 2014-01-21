@@ -157,30 +157,6 @@ body {
     position: relative;
 }
 
-@-webkit-keyframes progressbar {
-    0% { width: 0; }
-    100% { width: 100%; }
-}
-
-@keyframes progressbar {
-    0% { width: 0; }
-    100% { width: 100%; }
-}
-
-.progress-bar {
-    background-color: rgba(255,0,0,0.5);
-    left: 0;
-    height: 3px;
-    position: absolute;
-    top: 0;
-    width: 0;
-}
-
-.progress-bar.loaded {
-    -webkit-animation: progressbar .5s ease-out;
-    animation: progressbar .5s ease-out;
-}
-
 .form-control {
     padding-bottom: 10px;
 }
@@ -225,6 +201,44 @@ body {
     -webkit-box-shadow: inset 0 1px 0 0 #1E5201;
     box-shadow: inset 0 1px 0 0 #1E5201;
     line-height: 29px;
+}
+
+@-webkit-keyframes progressbar {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 80px 0;
+    }
+}
+
+@keyframes progressbar {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 80px 0;
+    }
+}
+
+.control-submit .button.loading {
+    position: relative;
+}
+
+.control-submit .button.loading:after {
+    content:'';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background-repeat: repeat-x;
+    background-position: 0 0;
+    background-size: 40px 40px;
+    background-image: -webkit-linear-gradient(335deg, transparent, transparent 33%, rgba(0,0,0,0.12) 33%, rgba(0,0,0,0.12) 66%, transparent 66%, transparent);
+    background-image: linear-gradient(295deg, transparent, transparent 33%, rgba(0,0,0,0.12) 33%, rgba(0,0,0,0.12) 66%, transparent 66%, transparent);
+    -webkit-animation: progressbar 0.8s linear infinite;
+    animation: progressbar 0.8s linear infinite;
 }
 
 .control-select .label {
