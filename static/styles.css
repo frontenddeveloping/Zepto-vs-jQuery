@@ -153,23 +153,78 @@ body {
 
 .main-form {
     display: inline-block;
-    margin: 30px 30px 25px;
+    padding: 20px 10px;
     position: relative;
-    width: 100%;
 }
 
-.control-options {
-    clear: both;
+@-webkit-keyframes progressbar {
+    0% { width: 0; }
+    100% { width: 100%; }
+}
+
+@keyframes progressbar {
+    0% { width: 0; }
+    100% { width: 100%; }
+}
+
+.progress-bar {
+    background-color: rgba(255,0,0,0.5);
+    left: 0;
+    height: 3px;
     position: absolute;
-    left: 240px;
     top: 0;
+    width: 0;
 }
 
-.control-select {
-    clear: left;
-    float: left;
+.progress-bar.loaded {
+    -webkit-animation: progressbar .5s ease-out;
+    animation: progressbar .5s ease-out;
+}
+
+.form-control {
     padding-bottom: 10px;
+}
+
+.methods-controls,
+.libs-controls,
+.control-submit {
+    float: left;
     padding-right: 30px;
+}
+
+.control-submit {
+    padding: 10px 0;
+}
+
+.control-submit .button {
+    color:#fff;
+    font-weight: bold;
+    background-color: #94c745;
+    background: -o-linear-gradient(top, #a1d84a 0%, #82bc3c 100%);
+    background: -moz-linear-gradient(top, #a1d84a 0%, #82bc3c 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #a1d84a), color-stop(100%, #82bc3c));
+    background: -webkit-linear-gradient(top, #a1d84a 0%, #82bc3c 100%);
+    background: linear-gradient(to bottom, #a1d84a 0%, #82bc3c 100%);
+    -webkit-box-shadow: inset 0 -1px 1px 0 #679522;
+    box-shadow: inset 0 -1px 1px 0 #679522;
+
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+
+    height: 40px;
+    line-height: 30px;
+    padding: 5px 45px;
+}
+
+.control-submit .button:active {
+    background: -o-linear-gradient(top, #82bc3c 0%, #a1d84a 100%);
+    background: -moz-linear-gradient(top, #82bc3c 0%, #a1d84a 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #82bc3c), color-stop(100%, #a1d84a));
+    background: -webkit-linear-gradient(top, #82bc3c 0%, #a1d84a 100%);
+    background: linear-gradient(to bottom, #82bc3c 0%, #a1d84a 100%);
+    -webkit-box-shadow: inset 0 1px 0 0 #1E5201;
+    box-shadow: inset 0 1px 0 0 #1E5201;
+    line-height: 29px;
 }
 
 .control-select .label {
@@ -183,9 +238,7 @@ body {
 
 .control-checkbox {
     float: left;
-    padding-bottom: 10px;
-    padding-right: 10px;
-    width: 140px;
+    width: 180px;
 }
 
 .control-checkbox:nth-child(2n+1) {
@@ -199,8 +252,8 @@ body {
 
 .results-table {
     clear: both;
-    margin-bottom: 30px;
-    margin-left: 30px;
+    margin-bottom: 20px;
+    margin-left: 10px;
     display: inline-block;
     vertical-align: top;
 }

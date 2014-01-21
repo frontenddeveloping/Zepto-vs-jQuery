@@ -1,28 +1,44 @@
-jQuery.noConflict();
-(function (undefined){
+(function ($, undefined){
 
     /*
-    *   TODO add methods counter, preloader and load scripts from git hub API
+    *   TODO
+    *       add methods counter
+    *       preloader
+     *      load scripts from git hub API
     * */
 
 
     //libs version-url object
-    var libsObject = {
-        zepto : {
-            "1.0.1" : "libs/zepto-1.0.1.js"
+    var LOCAL_LIBS_OBJ = {
+            zepto : {
+                "1.0.1" : "libs/zepto-1.0.1.js"
+            },
+            jquery : {
+                "1.10.1" : "libs/jquery-1.10.1.js",
+                "2.0.3" : "libs/jquery-2.0.3.js"
+            }
         },
-        jquery : {
-            "1.10.1" : "libs/jquery-1.10.1.js",
-            "2.0.3" : "libs/jquery-2.0.3.js"
-        }
-    };
+        GITHUB_LIBS_OBJ = {
+            zepto : {},
+            jquery : {}
+        };
 
-    //cache selectors
-    var staticRenderBody = jQuery('#static-tbody'),
-        sharedRenderBody = jQuery('#shared-tbody'),
-        staticTable = jQuery('.static-table'),
-        sharedTable = jQuery('.shared-table');
+    //will cache selectors here
+    var $RESULTS,
+        $STATIC_LIB_PROPS_TBODY,
+        $SHARED_LIB_PROPS_TBODY,
+        $STATIC_LIB_PROPS_TABLE,
+        $SHARED_LIB_PROPS_TABLE,
+        $SCRIPTS_SANDBOX,
+        $PROGRESS_BAR,
+        $ZEPTO_VERSION_CONTROL,
+        $JQUERY_VERSION_CONTROL,
+        $STATIC_METHODS_CONTROL,
+        $ESSSENCE_METHODS_CONTROLS,
+        $DIFF_METHODS_CONTROL,
+        $COMMON_METHOD_CONTROL;
 
+    //Helper functions
     function inArray(value, array){
         if ([].indexOf) {
             return array.indexOf(value);
@@ -37,18 +53,33 @@ jQuery.noConflict();
         return -1;
     }
 
+    //method for script loading
     function getScriptURL(lib, version) {
-        var url;
-        try {
-            url = libsObject[lib][version];
-        } catch(e) {
-            url = '';
-        }
-
-        return url;
+        return GITHUB_LIBS_OBJ[lib][version];
     }
 
-    function getMethods(essence, isOwn) {
+    function setScriptToSandbox(scriptURL) {
+        var deferred = $.Deferred(),
+            $sandboxDocument = $SCRIPTS_SANDBOX.contents(),
+            script = $sandboxDocument.get(0).createElement('script');
+
+        $sandboxDocument.find('head').append(script);
+        script.src = scriptURL;
+        script.onload = deferred.resolve;
+
+        return deferred;
+    }
+
+    function removeScriptFromSandbox(libObjectName) {
+        var iframeGlobalContext = $SCRIPTS_SANDBOX.get(0).contentWindow;
+
+        if (iframeGlobalContext[libObjectName]) {
+            iframeGlobalContext[libObjectName] = null;
+            delete iframeGlobalContext[libObjectName];
+        }
+    }
+
+    function getMethods(essence) {
         var methods = [],
             any;
 
@@ -63,8 +94,9 @@ jQuery.noConflict();
         options = options || {};
         var staticCheck = options._static,
             sharedCheck = options._essence,
-            staticMethods = staticCheck ? getMethods(jQuery.fn) : [],
-            sharedMethods = sharedCheck ? getMethods(jQuery()) : [];
+            iframeGlobalContext = $SCRIPTS_SANDBOX.get(0).contentWindow,
+            staticMethods = staticCheck ? getMethods(iframeGlobalContext.jQuery.fn) : [],
+            sharedMethods = sharedCheck ? getMethods(iframeGlobalContext.jQuery()) : [];
 
         return {
             staticMethods : staticMethods,
@@ -76,8 +108,9 @@ jQuery.noConflict();
         options = options || {};
         var staticCheck = options._static,
             sharedCheck = options._essence,
-            staticMethods = staticCheck ? getMethods(Zepto.fn) : [],
-            sharedMethods = sharedCheck ? getMethods(Zepto()) : [];
+            iframeGlobalContext = $SCRIPTS_SANDBOX.get(0).contentWindow,
+            staticMethods = staticCheck ? getMethods(iframeGlobalContext.Zepto.fn) : [],
+            sharedMethods = sharedCheck ? getMethods(iframeGlobalContext.Zepto()) : [];
 
         return {
             staticMethods : staticMethods,
@@ -148,17 +181,35 @@ jQuery.noConflict();
         };
     }
 
-    function loadScript(scriptURL, successCallback) {
-        console.log(scriptURL);
-        return jQuery.getScript(scriptURL, successCallback);
-    }
+    function renderResults(method, methodObject, renderBody, compareOptions) {
+        var isStatic = compareOptions._static,
+            isCommon = compareOptions._common,
+            isDiff = compareOptions._diff,
+            tableRow,
+            methodCell,
+            jQueryResultCell,
+            ZeptoResultCell;
 
-    function renderResults(method, methodObject, isStatic, renderBody) {
-        isStatic = isStatic || false;
-        var tableRow = $('<tr>').addClass('method-row visible').attr('data-is-static', Number(isStatic)),
-            methodCell = $('<td>').addClass('method-cell cell').html(method),
-            jQueryResultCell = $('<td>').addClass('jquery-cell cell'),
-            ZeptoResultCell = $('<td>').addClass('zepto-cell cell');
+        if (
+            (
+                isDiff
+                &&
+                methodObject.jquery === methodObject.zepto
+            )
+            ||
+            (
+               isCommon
+               &&
+               methodObject.jquery !== methodObject.zepto
+            )
+        ) {
+            return;
+        }
+
+        tableRow = $('<tr>').addClass('method-row visible').attr('data-is-static', Number(isStatic));
+        methodCell = $('<td>').addClass('method-cell cell').html(method);
+        jQueryResultCell = $('<td>').addClass('jquery-cell cell');
+        ZeptoResultCell = $('<td>').addClass('zepto-cell cell');
 
         if (methodObject.jquery) {
             jQueryResultCell.html('+');
@@ -180,60 +231,119 @@ jQuery.noConflict();
 
     }
 
-    function renderStaticResults(resultObject) {
+    function renderStaticResults(resultObject, compareOptions) {
         for (var i in resultObject) {
             if (resultObject.hasOwnProperty(i)) {
-                renderResults(i, resultObject[i], true, staticRenderBody);
+                renderResults(i, resultObject[i], $STATIC_LIB_PROPS_TBODY, compareOptions);
             }
         }
     }
 
-    function renderSharedResults(resultObject) {
+    function renderSharedResults(resultObject, compareOptions) {
         for (var i in resultObject) {
             if (resultObject.hasOwnProperty(i)) {
-                renderResults(i, resultObject[i], false, sharedRenderBody);
+                renderResults(i, resultObject[i], $SHARED_LIB_PROPS_TBODY, compareOptions);
             }
         }
     }
 
     function disableControls() {
-        jQuery(':input').prop('disabled', true);
+        $(':input').prop('disabled', true);
     }
 
     function enableControls() {
-        jQuery(':input').prop('disabled', false);
+        $(':input').prop('disabled', false);
     }
 
     function resetContent() {
-        sharedRenderBody.html('');
-        staticRenderBody.html('');
+        $SHARED_LIB_PROPS_TBODY.html('');
+        $STATIC_LIB_PROPS_TBODY.html('');
     }
 
-    function testFrameworks(zeptoVersion, jqueryVersion, compareOptions) {
-        var jqueryURL = getScriptURL('jquery', jqueryVersion),
-            zeptoURL = getScriptURL('zepto', zeptoVersion),
-            jqueryMethods,
-            zeptoMethods,
-            jqueryXHR = loadScript(jqueryURL, function (data) {
-                jqueryMethods = getjQueryMethods(compareOptions);
-            }),
-            zeptoXHR = loadScript(zeptoURL, function (data) {
-                zeptoMethods = getZeptoMethods(compareOptions);
+    function showRenderedResults() {
+        $RESULTS.show();
+    }
+
+    function hideRenderedResults() {
+        $RESULTS.hide();
+    }
+
+    function setLibVersionsToControl(libName) {
+        var $libControl;
+
+        if (libName === 'jquery') {
+            $libControl = $JQUERY_VERSION_CONTROL;
+        } else if (libName == 'zepto') {
+            $libControl = $ZEPTO_VERSION_CONTROL;
+        }
+
+        $libControl.empty();
+
+        $.each(GITHUB_LIBS_OBJ[libName], function (version, url) {
+
+            var $option = $('<option>', {
+                value : url,
+                html : version
             });
 
-        disableControls();
+            if (!url) {
+                $option.prop('disabled', true);
+            }
 
-        jQuery
-            .when(jqueryXHR, zeptoXHR)
-            .done(function () {
-                resetContent();
-                var result = mergeLibsMethods(jqueryMethods, zeptoMethods);
-                renderStaticResults(result.staticMethods);
-                renderSharedResults(result.sharedMethods);
-            })
-            .always(function () {
-                enableControls();
-            });
+            $libControl.append($option)
+        });
+
+    }
+
+    function getLibVersions(libName, repoOwner, repoName) {
+        return $.ajax({
+            url : 'https://api.github.com/repos/' + repoOwner + '/' + repoName +  '/tags',
+            type : 'get'
+        }).done(function (tagsArray) {
+            //data is array
+            var i = 0,
+                tag,
+                libURL,
+                l;
+
+            if (!tagsArray || !tagsArray[0]) {
+                GITHUB_LIBS_OBJ[libName] = LOCAL_LIBS_OBJ[libName];
+                return;
+            }
+
+            l = tagsArray.length;
+
+            for (i; i < l; i++) {
+
+                tag = tagsArray[i];
+                libURL = '';
+
+                if (libName === 'jquery') {
+                    //We can't get jQuery lib file from github, it stores only sources file for build
+                    //But there is CDN http://code.jquery.com/jquery/ which files named as tags.
+                    libURL = 'http://code.jquery.com/jquery-' + tag.name + '.js';
+                } else if (libName === 'zepto' && i === 0) {
+                    //We cangrab just last Zepto version, which is the first (last created) tag
+                    //If there is any way to grab older zepto versions, message me
+                    libURL = 'http://zeptojs.com/zepto.js';
+                }
+
+                GITHUB_LIBS_OBJ[libName][tag.name] = libURL;
+            }
+
+        }).fail(function () {
+            GITHUB_LIBS_OBJ[libName] = LOCAL_LIBS_OBJ[libName];
+        }).always(function () {
+            setLibVersionsToControl(libName);
+        });
+    }
+
+    function getjQueryVersions() {
+        return getLibVersions('jquery', 'jquery', 'jquery');
+    }
+
+    function getZeptoVersions() {
+        return getLibVersions('zepto', 'madrobby', 'zepto');
     }
 
     function hideCommonMethods() {
@@ -252,62 +362,127 @@ jQuery.noConflict();
         $('.method-row').filter('[data-is-common="0"]').removeClass('hidden').addClass('visible');
     }
 
-    jQuery(function () {
-        var $zeptoVersionControl = jQuery('#zepto-version'),
-            $jqueryVersionControl = jQuery('#jquery-version'),
-            $staticMethodsControl = jQuery('#static-methods'),
-            $essenceMethodsControl = jQuery('#essence-methods'),
-            $diffMethodsControl = jQuery('#diff-methods'),
-            $commonMethodControl = jQuery('#common-methods'),
-            controlsHandler = function () {
-                var zeptoVersion = $zeptoVersionControl.val(),
-                    jqueryVersion = $jqueryVersionControl.val(),
-                    compareOptions = {
-                        _static : $staticMethodsControl.is(':checked'),
-                        _essence : $essenceMethodsControl.is(':checked')
-                    },
-                    controlNode = this;
+    $(function () {
 
-                if (controlNode === $diffMethodsControl.get(0)) {
-                    if ($diffMethodsControl.prop('checked')) {
-                        $commonMethodControl.prop('checked', false);
-                        showDiffMethods();
-                        hideCommonMethods();
-                    } else {
-                        showCommonMethods();
-                    }
-                } else if (controlNode === $commonMethodControl.get(0)) {
-                    if ($commonMethodControl.prop('checked')) {
-                        $diffMethodsControl.prop('checked', false);
-                        showCommonMethods();
-                        hideDiffMethods();
-                    } else {
-                        showDiffMethods();
-                    }
-                } else if (controlNode === $staticMethodsControl.get(0)) {
-                    if ($staticMethodsControl.prop('checked')) {
-                        staticTable.show();
-                    } else {
-                        staticTable.hide();
-                    }
-                } else if (controlNode === $essenceMethodsControl.get(0)) {
-                    if ($essenceMethodsControl.prop('checked')) {
-                        sharedTable.show();
-                    } else {
-                        sharedTable.hide();
-                    }
+        $RESULTS = $('#results');
+        $STATIC_LIB_PROPS_TBODY = $('#static-tbody');
+        $SHARED_LIB_PROPS_TBODY = $('#shared-tbody');
+        $STATIC_LIB_PROPS_TABLE = $('.static-table');
+        $SHARED_LIB_PROPS_TABLE = $('.shared-table');
+        $SCRIPTS_SANDBOX = $('#sandbox');
+        $ZEPTO_VERSION_CONTROL = $('#zepto-versions');
+        $JQUERY_VERSION_CONTROL = $('#jquery-versions');
+        $STATIC_METHODS_CONTROL = $('#static-methods');
+        $ESSSENCE_METHODS_CONTROLS = $('#essence-methods');
+        $DIFF_METHODS_CONTROL = $('#diff-methods');
+        $COMMON_METHOD_CONTROL = $('#common-methods');
+        $PROGRESS_BAR = $('#progress-bar');
+
+        hideRenderedResults();
+
+        //set default options
+        $STATIC_METHODS_CONTROL.prop('checked', true);
+        $ESSSENCE_METHODS_CONTROLS.prop('checked', true);
+        $DIFF_METHODS_CONTROL.prop('checked', false);
+        $COMMON_METHOD_CONTROL.prop('checked', false);
+
+        //disable controls, will enabled after libs version will loaded
+        disableControls();
+
+        //set methods controls via checkboxes handler
+        $(':checkbox').on('change', function (e) {
+            var controlNode = this;
+
+            if (controlNode === $DIFF_METHODS_CONTROL.get(0)) {
+                if ($DIFF_METHODS_CONTROL.prop('checked')) {
+                    $COMMON_METHOD_CONTROL.prop('checked', false);
+                    showDiffMethods();
+                    hideCommonMethods();
                 } else {
-                    testFrameworks(zeptoVersion, jqueryVersion, compareOptions);
+                    showCommonMethods();
                 }
-            };
-        $staticMethodsControl.prop('checked', true);
-        $essenceMethodsControl.prop('checked', true);
-        $diffMethodsControl.prop('checked', false);
-        $commonMethodControl.prop('checked', false);
+            } else if (controlNode === $COMMON_METHOD_CONTROL.get(0)) {
+                if ($COMMON_METHOD_CONTROL.prop('checked')) {
+                    $DIFF_METHODS_CONTROL.prop('checked', false);
+                    showCommonMethods();
+                    hideDiffMethods();
+                } else {
+                    showDiffMethods();
+                }
+            } else if (controlNode === $STATIC_METHODS_CONTROL.get(0)) {
+                if ($STATIC_METHODS_CONTROL.prop('checked')) {
+                    $STATIC_LIB_PROPS_TABLE.show();
+                } else if ($ESSSENCE_METHODS_CONTROLS.prop('checked')) {
+                    $STATIC_LIB_PROPS_TABLE.hide();
+                } else {
+                    $STATIC_METHODS_CONTROL.prop('checked', true);
+                }
+            } else if (controlNode === $ESSSENCE_METHODS_CONTROLS.get(0)) {
+                if ($ESSSENCE_METHODS_CONTROLS.prop('checked')) {
+                    $SHARED_LIB_PROPS_TABLE.show();
+                } else if ($STATIC_METHODS_CONTROL.prop('checked')) {
+                    $SHARED_LIB_PROPS_TABLE.hide();
+                } else {
+                    $ESSSENCE_METHODS_CONTROLS.prop('checked', true);
+                }
+            }
+        });
 
-        jQuery(':input').on('change', controlsHandler);
+        //submit handler, it starts libs testing for methods
+        $('.main-form').on('submit', function (e) {
 
-        controlsHandler();
+            e.preventDefault();
+
+            var zeptoURL = $ZEPTO_VERSION_CONTROL.val(),
+                jqueryURL = $JQUERY_VERSION_CONTROL.val(),
+                compareOptions = {
+                    _static : $STATIC_METHODS_CONTROL.is(':checked'),
+                    _essence : $ESSSENCE_METHODS_CONTROLS.is(':checked'),
+                    _diff : $DIFF_METHODS_CONTROL.prop('checked'),
+                    _common : $COMMON_METHOD_CONTROL.prop('checked')
+                },
+                jqueryMethods,
+                zeptoMethods,
+                jqueryDeffered = setScriptToSandbox(jqueryURL).done(function () {
+                    jqueryMethods = getjQueryMethods(compareOptions);
+                }),
+                zeptoDeffered = setScriptToSandbox(zeptoURL).done(function () {
+                    zeptoMethods = getZeptoMethods(compareOptions);
+                });
+
+            disableControls();
+
+            removeScriptFromSandbox('jQuery');
+            removeScriptFromSandbox('Zepto');
+            removeScriptFromSandbox('$');
+
+            $
+                .when(jqueryDeffered, zeptoDeffered)
+                .done(function () {
+                    resetContent();
+                    var result = mergeLibsMethods(jqueryMethods, zeptoMethods);
+                    renderStaticResults(result.staticMethods, compareOptions);
+                    renderSharedResults(result.sharedMethods, compareOptions);
+                    showRenderedResults();
+                })
+                .always(function () {
+                    enableControls();
+                    //notify user that page changed
+                    $PROGRESS_BAR.addClass('loaded');
+                    setTimeout(function () {
+                        $PROGRESS_BAR.removeClass('loaded');
+                    }, 600)
+                });
+
+        });
+
+        //start loading jQuery/Zepto libs version from GitHub
+        $
+            .when(getjQueryVersions(), getZeptoVersions())
+            .always(function () {
+                enableControls();
+            });
+
     });
 
-})();
+})(jQuery);
