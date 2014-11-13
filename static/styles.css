@@ -278,6 +278,11 @@ body {
     padding: 10px;
 }
 
+.results-table .cell.th-method {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 .results-table .jquery-cell,
 .results-table .zepto-cell {
     font-size: 18px;
@@ -311,6 +316,7 @@ body {
 
 .results-table .th-method {
     color: #000;
+    white-space: nowrap;
 }
 
 .results-table .th-zepto {
@@ -340,4 +346,15 @@ body {
 
 .hidden {
     display: none;
+}
+
+/*
+    No content cells
+*/
+
+.no-content .cell {
+    background: #aaa;
+    border-radius: 10px 0 10px 10px !important;
+    padding: 30px;
+    text-align: right;
 }

@@ -29,9 +29,9 @@
                 <span class="label-text">Static methods</span>
             </label>
         </div>
-        <div class="form-control control-essence-methods control-checkbox">
-            <label for="essence-methods" class="label">
-                <input type="checkbox" id="essence-methods" name="essence_methods" class="checkbox" />
+        <div class="form-control control-shared-methods control-checkbox">
+            <label for="shared-methods" class="label">
+                <input type="checkbox" id="shared-methods" name="shared_methods" class="checkbox" />
                 <span class="label-text">Shared methods</span>
             </label>
         </div>
@@ -57,22 +57,26 @@
 <div class="results" id="results">
     <table class="results-table static-table">
         <thead>
-            <th class="cell th-cell th-method">Static methods</th>
+            <th class="cell th-cell th-method">Static methods(<span class="methods-counter"></span>)</th>
             <th class="cell th-cell th-jquery">jQuery</th>
             <th class="cell th-cell th-zepto">Zepto</th>
         </thead>
         <tbody id="static-tbody" class="tbody">
-            <!-- insert compare result here-->
+            <tr class="no-content">
+                <td colspan="3" class="cell">Please, press "Compare versions"</td>
+            </tr>
         </tbody>
     </table>
     <table class="results-table shared-table">
         <thead>
-            <th class="cell th-cell th-method">Shared methods</th>
+            <th class="cell th-cell th-method">Shared methods(<span class="methods-counter"></span>)</th>
             <th class="cell th-cell th-jquery">jQuery</th>
             <th class="cell th-cell th-zepto">Zepto</th>
         </thead>
         <tbody id="shared-tbody" class="tbody">
-            <!-- insert compare result here-->
+            <tr class="no-content">
+                <td colspan="3" class="cell">Please, press "Compare versions"</td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -81,7 +85,7 @@
         TODO description
     -->
 </div>
-<script src="libs/jquery-1.10.1.js"></script>
+<script src="libs/jquery-2.1.1.js"></script>
 <script src="static/main.js"></script>
 <iframe src="sandbox.html" id="sandbox" style="display: none"></iframe>
 </body>
